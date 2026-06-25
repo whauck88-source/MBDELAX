@@ -23,9 +23,12 @@ namespace
         using SIMD = juce::dsp::SIMDRegister<float>;
         constexpr int N = static_cast<int> (SIMD::SIMDNumElements);
 
-        auto aligned = [] (const void* p) noexcept
+        // Capture N explicitly: MSVC (unlike GCC/Clang) refuses to use a
+        // constexpr local inside a no-capture lambda (C3493).
+        const std::size_t alignBytes = static_cast<std::size_t> (N) * sizeof (float);
+        auto aligned = [alignBytes] (const void* p) noexcept
         {
-            return (reinterpret_cast<std::uintptr_t> (p) % (N * sizeof (float))) == 0;
+            return (reinterpret_cast<std::uintptr_t> (p) % alignBytes) == 0;
         };
 
         int i = 0;
