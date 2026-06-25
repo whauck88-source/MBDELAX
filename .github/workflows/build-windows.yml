@@ -10,7 +10,11 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    # Pinned to windows-2022 (VS 2022). "windows-latest" now resolves to the
+    # windows-2025 image, which ships Visual Studio 2026 - its CMake generator
+    # name differs ("Visual Studio 18 2026"), so the VS17 generator below cannot
+    # find it. Pinning keeps the toolchain matched and the build reproducible.
+    runs-on: windows-2022
 
     steps:
       - name: Checkout project
