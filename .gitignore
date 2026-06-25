@@ -1,0 +1,16 @@
+# JUCE framework — fetched by CI (and present locally); too large to track.
+JUCE-master/
+
+# Build output
+build/
+cmake-build-*/
+*.vst3
+*.component
+
+# Windows / Google Drive cruft
+desktop.ini
+Thumbs.db
+.DS_Store
+
+# Packaged archives
+*.zip

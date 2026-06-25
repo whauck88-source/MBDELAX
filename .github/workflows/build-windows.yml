@@ -1,0 +1,38 @@
+name: Build VST3 (Windows)
+
+# Builds the MBDELAX VST3 in the cloud so no local Visual Studio install is
+# needed. Triggers on every push to main and can also be run on demand from the
+# Actions tab ("Run workflow").
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      # JUCE-master is git-ignored (it is hundreds of MB), so the CI runner
+      # fetches the exact same version the project was authored against: 8.0.14.
+      - name: Fetch JUCE 8.0.14
+        run: git clone --depth 1 --branch 8.0.14 https://github.com/juce-framework/JUCE.git JUCE-master
+
+      - name: Configure (CMake + Visual Studio 2022, x64, Release)
+        run: cmake -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build MBDELAX VST3
+        run: cmake --build build --config Release --target MBDELAX_VST3 --parallel
+
+      # The .vst3 is a bundle (folder). upload-artifact zips it; the download is
+      # a .zip containing the MBDELAX.vst3 folder ready to drop into the host's
+      # VST3 path (Windows: C:\Program Files\Common Files\VST3).
+      - name: Upload VST3 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MBDELAX-VST3-Windows
+          path: build/MBDELAX_artefacts/Release/VST3/MBDELAX.vst3
+          if-no-files-found: error
